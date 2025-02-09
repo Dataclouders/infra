@@ -1,0 +1,40 @@
+jobs:
+  format:
+    name: Format Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::135808920063:role/github
+      - run: terraform init
+      - run: terraform fmt -check -diff
+  lint:
+    name: Lint Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: terraform-linters/setup-tflint@v4
+      - run: tflint --init
+      - run: tflint
+  test:
+    name: Test Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::135808920063:role/github
+      - run: terraform init
+      - run: terraform plan
+on:
+  push:
+    branches-ignore:
+      - main
+permissions:
+  contents: read
+  id-token: write
